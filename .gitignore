@@ -1,3 +1,6 @@
+# project specific
+slack-image-dump-*/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
