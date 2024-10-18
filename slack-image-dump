@@ -8,6 +8,7 @@ import argparse
 
 SLACK_API_TOKEN_REGEX = r"(xoxc-[a-zA-Z0-9-]+)"
 SEARCH_FILES_URL = "https://slack.com/api/search.files"
+MAX_RESULT_COUNT = 100
 
 
 def cli() -> argparse.ArgumentParser:
@@ -82,19 +83,42 @@ class SlackImageDump:
             sys.exit(1)
 
     def dump_images(self, query: str) -> None:
+        path = query.replace(" ", "-").replace('"', "").replace("'", "")
+        path = f"./slack-image-dump-{path}"
+        try:
+            os.mkdir(path)
+        except FileExistsError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
         if not "type:images" in query:
             query = f"{query} type:images"
 
-        r = self.s.get(
-            SEARCH_FILES_URL,
-            params=dict(query=f"{query}", count=100),
-        ).json()
+        matches = []
+        page = 1
+        pages = MAX_RESULT_COUNT
+        while page <= pages:
+            r = self.s.get(
+                SEARCH_FILES_URL,
+                params=dict(query=query, count=MAX_RESULT_COUNT, page=page),
+            ).json()
+            if r["ok"] == True:
+                page = r["files"]["paging"]["page"] + 1
+                pages = r["files"]["paging"]["pages"]
+                matches.extend(r["files"]["matches"])
+            else:
+                print(f"Error: {r.text}")
+                sys.exit(1)
 
-        path = args.query.replace(" ", "-").replace('"', "").replace("'", "")
-        path = f"./slack-image-dump-{path}"
-        os.mkdir(path)
         counter = 0
-        for file in r["files"]["matches"]:
+        total = len(matches)
+        for file in matches:
+            bar = int((counter / total) * 50)
+            space = 50 - bar
+            print(
+                f"Progress: [ {'='*bar}>{' '*space} ] ({counter} / {total}) files",
+                end="\r",
+            )
             r = self.s.get(
                 file["url_private_download"],
             )
