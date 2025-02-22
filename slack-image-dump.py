@@ -1,9 +1,7 @@
-#!/usr/bin/env -S uv run --script
+#!/usr/bin/env python3
 # /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#   "requests",
-# ]
+# requires-python = ">=3.10"
+# dependencies = ["requests"]
 # ///
 
 import requests
@@ -19,7 +17,7 @@ MAX_RESULT_COUNT = 100
 
 def cli() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="slack-image-dump",
+        prog="slack-image-dump.py",
         description="Commandline tool to dump slack images from a workspace based on a specified query",
         epilog="slack-image-dump expects a cookie supplied with the -c parameter or set with the environment variable SLACK_COOKIE",
     )

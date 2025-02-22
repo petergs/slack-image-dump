@@ -3,7 +3,7 @@ name = "slack-image-dump"
 version = "0.1.0"
 description = "Dump slack images containing text keywords"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "requests>=2.32.3",
 ]
